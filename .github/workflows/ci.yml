@@ -19,14 +19,31 @@ jobs:
         with:
           python-version: '3.8'
 
+      - name: Install and upgrade pip
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install --upgrade setuptools wheel
+
       - name: Install Poetry
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
+          curl -sSL https://install.python-poetry.org | python3 - --version 1.8.3
           echo "$HOME/.local/bin" >> $GITHUB_PATH
+          poetry --version  # Verify installation
+        env:
+          POETRY_HOME: ~/.poetry
+        continue-on-error: false
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
 
       - name: Install dependencies
         run: |
-          poetry install
+          poetry install --no-interaction
 
       - name: Run Black
         run: |

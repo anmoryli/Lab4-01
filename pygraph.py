@@ -41,10 +41,10 @@ class Graph(object):
     def remove_node(self, node: Node) -> None:
         """Remove all references to node"""
         if not self.has_node(node):
-            raise ValueError(f"Node {node} does not exist in the graph")
+            raise ValueError(f"Node {node} does not exist")  # 新增：检查节点存在性
 
         # 移除所有指向该节点的边（入边）
-        for neighbor in list(self.adj.keys()):
+        for neighbor in list(self.adj.keys()):  # 使用list避免迭代时修改字典
             if node in self.adj[neighbor]:
                 self.adj[neighbor].remove(node)
 
@@ -55,9 +55,9 @@ class Graph(object):
         """Remove an edge from graph"""
         u, v = edge
         if not self.has_node(u) or not self.has_node(v):
-            raise ValueError(f"Nodes {u} or {v} do not exist in the graph")
-        if v not in self.adj[u]:
-            raise ValueError(f"Edge {edge} does not exist in the graph")
+            raise ValueError(f"Node {u} or {v} does not exist")  # 新增：检查节点存在性
+        if v not in self.adj.get(u, set()):
+            raise ValueError(f"Edge {edge} does not exist")  # 新增：检查边存在性
 
         self.adj[u].remove(v)
         if not self.directed and u in self.adj[v]:
@@ -66,7 +66,7 @@ class Graph(object):
     def indegree(self, node: Node) -> int:
         """Compute indegree for a node"""
         if not self.has_node(node):
-            raise ValueError(f"Node {node} does not exist in the graph")
+            raise ValueError(f"Node {node} does not exist")  # 新增：检查节点存在性
 
         if not self.directed:
             return len(self.adj[node])
@@ -80,7 +80,7 @@ class Graph(object):
     def outdegree(self, node: Node) -> int:
         """Compute outdegree for a node"""
         if not self.has_node(node):
-            raise ValueError(f"Node {node} does not exist in the graph")
+            raise ValueError(f"Node {node} does not exist")  # 新增：检查节点存在性
 
         if not self.directed:
             return len(self.adj[node])

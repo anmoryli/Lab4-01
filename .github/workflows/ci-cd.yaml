@@ -1,0 +1,44 @@
+name: Python CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    # 3. 安装 Poetry
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    # 4. 使用 Poetry 安装依赖
+    - name: Install dependencies with Poetry
+      run: |
+        poetry install --with dev
+
+    # 5. 使用 black 检查代码格式
+    - name: Run black code formatter
+      run: |
+        poetry run black --check .
+
+    # 6. 使用 pytest 运行单元测试
+    - name: Run pytest
+      run: |
+        poetry run pytest -v
+
+    # 7. 使用 pdoc3 生成 API 文档
+    - name: Generate API documentation with pdoc3
+      run: |
+        poetry run pdoc --html --output-dir docs pygraph

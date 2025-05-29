@@ -40,25 +40,37 @@ class Graph(object):
 
     def remove_node(self, node: Node) -> None:
         """Remove all references to node"""
-        if node in self.adj:
-            # Remove all incoming edges
-            for neighbor in self.adj[node].copy():
-                self.remove_edge((neighbor, node))
-            # Remove the node itself
-            del self.adj[node]
+        if not self.has_node(node):
+            raise ValueError(f"Node {node} does not exist in the graph")
+
+        # 移除所有指向该节点的边（入边）
+        for neighbor in list(self.adj.keys()):
+            if node in self.adj[neighbor]:
+                self.adj[neighbor].remove(node)
+
+        # 移除节点本身
+        del self.adj[node]
 
     def remove_edge(self, edge: Edge) -> None:
         """Remove an edge from graph"""
         u, v = edge
-        if u in self.adj and v in self.adj[u]:
-            self.adj[u].remove(v)
-            if not self.directed and u in self.adj[v]:
-                self.adj[v].remove(u)
+        if not self.has_node(u) or not self.has_node(v):
+            raise ValueError(f"Nodes {u} or {v} do not exist in the graph")
+        if v not in self.adj[u]:
+            raise ValueError(f"Edge {edge} does not exist in the graph")
+
+        self.adj[u].remove(v)
+        if not self.directed and u in self.adj[v]:
+            self.adj[v].remove(u)
 
     def indegree(self, node: Node) -> int:
         """Compute indegree for a node"""
+        if not self.has_node(node):
+            raise ValueError(f"Node {node} does not exist in the graph")
+
         if not self.directed:
-            return len(self.adj.get(node, set()))
+            return len(self.adj[node])
+
         count = 0
         for neighbor in self.adj:
             if node in self.adj[neighbor]:
@@ -67,9 +79,13 @@ class Graph(object):
 
     def outdegree(self, node: Node) -> int:
         """Compute outdegree for a node"""
+        if not self.has_node(node):
+            raise ValueError(f"Node {node} does not exist in the graph")
+
         if not self.directed:
-            return len(self.adj.get(node, set()))
-        return len(self.adj.get(node, set()))
+            return len(self.adj[node])
+
+        return len(self.adj[node])
 
     def __str__(self) -> str:
         """String representation of the graph"""
